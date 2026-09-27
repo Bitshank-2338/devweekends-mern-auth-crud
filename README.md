@@ -4,8 +4,8 @@ A personal developer-project manager. You register an account, log in, and keep
 your own board of projects — ideas, work in progress, and finished builds — with
 notes attached to each one.
 
-**Live app:** _to be filled in after deployment_
-**API:** _to be filled in after deployment_
+**Live app:** https://devweekends-mern-auth-crud.vercel.app
+**API:** https://devweekends-mern-auth-crud.onrender.com
 
 ---
 
@@ -229,13 +229,27 @@ Real `.env` files are gitignored. Never commit a connection string or a JWT secr
 
 ## Deployment
 
-- **Database:** MongoDB Atlas
-- **Backend:** Render — root directory `server`, build `npm install`, start `npm start`
-- **Frontend:** Vercel — root directory `client`, framework Vite
+| Piece | Where | Settings |
+| ----- | ----- | -------- |
+| Database | MongoDB Atlas | database `devboard` |
+| Backend | Render (free instance) | root `server`, build `npm install`, start `npm start` |
+| Frontend | Vercel | root `client`, framework Vite |
 
-After deploying the backend, set `VITE_API_URL` on Vercel to the Render URL.
-After deploying the frontend, set `CLIENT_URL` on Render to the Vercel URL so
-CORS allows it, then redeploy the backend.
+Render environment: `MONGO_URI`, `JWT_SECRET`, `NODE_ENV=production`, `CLIENT_URL`
+(the Vercel URL). `PORT` is injected by Render, which is why `server.js` reads
+`process.env.PORT` first.
+
+Vercel environment: `VITE_API_URL` (the Render URL, no trailing slash).
+
+Order matters: deploy the backend first so the frontend has an API URL, then set
+`CLIENT_URL` on Render to the deployed frontend URL and redeploy — until that is
+set, the browser blocks every request as a CORS error.
+
+`client/vercel.json` rewrites all paths to `index.html`. Without it, refreshing
+`/dashboard` on Vercel returns a 404, because the route only exists in React Router.
+
+**Note:** the backend runs on a free Render instance, which spins down after
+inactivity. The first request after an idle period can take ~50 seconds.
 
 ## Notes on security decisions
 
